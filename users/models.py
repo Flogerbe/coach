@@ -45,6 +45,14 @@ class AthleteBase(AbstractBaseUser, PermissionsMixin):
     verbose_name_plural = _('users')
     abstract = True
 
+def build_avatar_path(athlete, filename):
+  '''
+  Build the avatar path relative to MEDIA_ROOT
+  '''
+  from hashlib import md5
+  md5_contents = '%s:%d' % (filename, athlete.pk)
+  return 'avatars/%s_%s.jpg' % (athlete.username, md5(md5_contents).hexdigest()[0:8])
+
 class Athlete(AthleteBase):
   # Personal infos for trainer
   birthday = models.DateField(null=True, blank=True)
@@ -57,6 +65,9 @@ class Athlete(AthleteBase):
   comment = models.TextField(null=True, blank=True)
   nb_sessions = models.IntegerField(null=True, blank=True)
   license = models.CharField(max_length=12, null=True, blank=True)
+
+  # Avatar picture
+  avatar = models.ImageField(upload_to=build_avatar_path)
 
   # Sport
   default_sport = models.ForeignKey('sport.Sport', default=3, limit_choices_to={'depth': 1,}) # default to running
